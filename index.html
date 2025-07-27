@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>さえすずTシャツ風ジェネレーター</title>
+    <style>
+      body {
+        background: #222;
+        color: #333;
+        font-family: "Noto Sans JP", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        min-height: 100vh;
+        margin: 0;
+      }
+      h1 {
+        margin-bottom: 1rem;
+        color: white;
+      }
+      #controls {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+      }
+      input[type="text"] {
+        font-size: 1.3rem;
+        padding: 0.4rem 0.6rem;
+        width: 250px;
+        border-radius: 4px;
+        border: none;
+        outline: none;
+      }
+      button {
+        font-size: 1.2rem;
+        padding: 0.5rem 1.2rem;
+        cursor: pointer;
+        border-radius: 4px;
+        border: none;
+        background-color: #444;
+        color: white;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #666;
+      }
+      #preview-label {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+      }
+      #canvas {
+        border: 1px solid #ccc;
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>さえすずTシャツ風ジェネレーター</h1>
+
+    <div id="controls">
+      <input
+        type="text"
+        id="textInput"
+        maxlength="8"
+        placeholder="ここに文字を入力"
+        value=""
+      />
+      <button id="downloadBtn">PNGダウンロード</button>
+    </div>
+
+    <div id="preview-label">プレビュー</div>
+    <canvas id="canvas" width="800" height="200"></canvas>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const input = document.getElementById("textInput");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      const defaultText = "さえすず";
+
+      function createRainbowGradient(ctx, x, y, width, height) {
+        const gradient = ctx.createLinearGradient(x, y, x + width, y);
+        const colors = [
+          "#FF0000", // 赤
+          "#FF7F00", // 橙
+          "#FFFF00", // 黄
+          "#00FF00", // 緑
+          "#0000FF", // 青
+          "#4B0082", // 藍
+          "#8B00FF", // 紫
+        ];
+        const step = 1 / (colors.length - 1);
+        colors.forEach((color, i) => {
+          gradient.addColorStop(i * step, color);
+        });
+        return gradient;
+      }
+
+      function draw() {
+        const text = input.value.trim() || defaultText;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        const x = canvas.width / 2;
+        const y = canvas.height / 2;
+        const fontSize = 120;
+
+        ctx.font = `bold ${fontSize}px 'Noto Sans JP', sans-serif`;
+
+        // アウトライン（グレー）太め
+        ctx.lineWidth = 18;
+        ctx.strokeStyle = "#555";
+        ctx.strokeText(text, x, y);
+
+        // 白い縁取り 太め
+        ctx.lineWidth = 12;
+        ctx.strokeStyle = "white";
+        ctx.strokeText(text, x, y);
+
+        // 虹色グラデーション塗りつぶし
+        const textMetrics = ctx.measureText(text);
+        const gradient = createRainbowGradient(
+          ctx,
+          x - textMetrics.width / 2,
+          y - fontSize / 2,
+          textMetrics.width,
+          fontSize
+        );
+        ctx.fillStyle = gradient;
+        ctx.fillText(text, x, y);
+      }
+
+      input.addEventListener("input", draw);
+
+      downloadBtn.addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = "logo.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+
+      draw();
+    </script>
+  </body>
+</html>
